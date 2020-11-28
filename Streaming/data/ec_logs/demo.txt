@@ -1,0 +1,62 @@
+1. create topic: logs_stream
+
+cd ~/kafka_2.12-0.10.2.1/
+
+bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic logs_stream --partitions 3 --replication-factor 3
+bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic logs_stream
+
+Topic:logs_stream	PartitionCount:3	ReplicationFactor:3	Configs:
+	Topic: logs_stream	Partition: 0	Leader: 0	Replicas: 0,1,2	Isr: 0,1,2
+	Topic: logs_stream	Partition: 1	Leader: 1	Replicas: 1,2,0	Isr: 1,2,0
+	Topic: logs_stream	Partition: 2	Leader: 2	Replicas: 2,0,1	Isr: 2,0,1
+
+
+2. create topic: user_activity_stream
+
+bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic user_activity_stream --partitions 3 --replication-factor 3
+bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic user_activity_stream
+
+Topic:user_activity_stream	PartitionCount:3	ReplicationFactor:3	Configs:
+	Topic: user_activity_stream	Partition: 0	Leader: 1	Replicas: 1,2,0	Isr: 1,2,0
+	Topic: user_activity_stream	Partition: 1	Leader: 2	Replicas: 2,0,1	Isr: 2,0,1
+	Topic: user_activity_stream	Partition: 2	Leader: 0	Replicas: 0,1,2	Isr: 0,1,2
+
+
+3. test the created topics with kafka-console-producer and kafka-console-consumer
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic logs_stream
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic logs_stream
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic user_activity_stream
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic user_activity_stream
+
+
+4. Run the demo
+
+# console consumer
+# responsible for getting the data from logs stream and store it in a staging file
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic logs_stream
+
+# spark streaming consumer for caculating stats in nearly real time
+
+cd ~/PythonProjects/proj_spark_streaming_101/
+spark-submit --master spark://devenv:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 ec_logs_realtime_states.py
+
+# console consumer 2
+# responsible for getting the result from the real time analysis
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic user_activity_stream
+
+# lunch producer
+
+cd ~/PythonProjects/proj_spark_streaming_101/
+python ec_logs_producer.py

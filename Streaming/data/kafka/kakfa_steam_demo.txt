@@ -1,0 +1,11 @@
+# terminal 1
+
+cd PythonProjects/proj_spark_streaming_101/
+
+spark-submit --master spark://devenv:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 kafka_stream_test.py
+
+
+# terminal 2
+
+cd ~/kafka_2.12-0.10.2.1/
+bin/kafka-console-producer.sh --broker-list devenv:9092 --topic test_stream

@@ -1,0 +1,8 @@
+1. Install afinn: AFINN sentiment analysis is a wordlist-based approach for sentiment analysis.
+
+pip install afinn
+
+https://github.com/fnielsen/afinn
+http://darenr.github.io/afinn/
+
+2.Note: Assume afinn module have been installed on all nodes.
